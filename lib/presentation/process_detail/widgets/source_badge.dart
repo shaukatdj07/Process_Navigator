@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/process_step_model.dart';
@@ -13,6 +14,7 @@ class SourceBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppStrings.of(context);
     final verified = DateFormat('d MMM yyyy').format(source.lastVerified);
 
     return Container(
@@ -34,18 +36,15 @@ class SourceBadge extends StatelessWidget {
                   child: Text(
                     source.sourceName,
                     style: AppTextStyles.link,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Text('Verified $verified', style: AppTextStyles.caption),
+                Text('${t('verified_on')} $verified', style: AppTextStyles.caption),
               ],
             ),
           ),
-          TextButton(
-            onPressed: onReport,
-            child: const Text('Report'),
-          ),
+          TextButton(onPressed: onReport, child: Text(t('report'))),
         ],
       ),
     );

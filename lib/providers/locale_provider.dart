@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../core/constants/app_constants.dart';
 
-/// Owns the bilingual (English / Urdu) interface language, including the
-/// text direction switch required for proper Urdu right-to-left layout.
 class LocaleProvider extends ChangeNotifier {
   Locale _locale = const Locale('en');
   Locale get locale => _locale;

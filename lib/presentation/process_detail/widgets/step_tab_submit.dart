@@ -38,9 +38,7 @@ class SubmitTab extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(submit.instructions[i], style: AppTextStyles.body),
-                  ),
+                  Expanded(child: Text(submit.instructions[i], style: AppTextStyles.body)),
                 ],
               ),
             ),
@@ -51,9 +49,7 @@ class SubmitTab extends StatelessWidget {
             children: [
               const Icon(Icons.receipt_long_rounded, color: AppColors.warning),
               const SizedBox(width: 12),
-              Expanded(
-                child: Text(submit.receiptNote, style: AppTextStyles.bodyMuted),
-              ),
+              Expanded(child: Text(submit.receiptNote, style: AppTextStyles.bodyMuted)),
             ],
           ),
         ),

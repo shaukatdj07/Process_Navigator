@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// Typography scale. Uses the platform default font so no external font
-/// assets are required for a first App Store / Play Store submission.
+
 class AppTextStyles {
   const AppTextStyles._();
 

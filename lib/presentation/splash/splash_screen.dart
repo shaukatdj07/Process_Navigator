@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/app_constants.dart';
+import '../../core/localization/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../providers/process_provider.dart';
 import '../../providers/profile_provider.dart';
 import '../home/home_screen.dart';
 
-/// First screen shown on launch. Loads bundled content and the saved
-/// profile while showing the brand mark, then routes to Home.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -22,15 +20,15 @@ class _SplashScreenState extends State<SplashScreen>
   late final Animation<double> _fade;
 
   @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..forward();
-    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _bootstrap();
-  }
+void initState() {
+  super.initState();
+  _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 600),
+  )..forward();
+  _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+  WidgetsBinding.instance.addPostFrameCallback((_) => _bootstrap());
+}
 
   Future<void> _bootstrap() async {
     final process = context.read<ProcessProvider>();
@@ -41,7 +39,6 @@ class _SplashScreenState extends State<SplashScreen>
       profile.load(),
     ]);
 
-    // Keep the brand moment visible for a minimum, comfortable duration.
     final minDelay = Future.delayed(const Duration(milliseconds: 1100));
 
     await Future.wait([loadFuture, minDelay]);
@@ -60,6 +57,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppStrings.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Center(
@@ -82,12 +80,12 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(AppConstants.appName, style: AppTextStyles.displayLarge),
+              Text(t('app_name'), style: AppTextStyles.displayLarge),
               const SizedBox(height: 8),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 48),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 48),
                 child: Text(
-                  AppConstants.tagline,
+                  t('app_tagline'),
                   style: AppTextStyles.bodyMuted,
                   textAlign: TextAlign.center,
                 ),

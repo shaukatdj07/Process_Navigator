@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/localization/app_strings.dart';
+import '../../core/localization/content_text.dart';
 import '../../core/utils/responsive.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../data/models/category_model.dart';
@@ -14,17 +16,17 @@ class ProcessListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ProcessProvider>();
-    final processes = provider.processesFor(category.id);
+    final t = AppStrings.of(context);
+    final processes = context.watch<ProcessProvider>().processesFor(category.id);
     final padding = Responsive.pagePadding(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(category.name)),
+      appBar: AppBar(title: Text(ContentText.categoryName(context, category))),
       body: processes.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.inbox_rounded,
-              title: 'No guides yet',
-              message: 'This category will be filled in as guides are verified.',
+              title: t('no_guides_title'),
+              message: t('no_guides_message'),
             )
           : ListView.separated(
               padding: EdgeInsets.fromLTRB(padding, 16, padding, 32),
@@ -36,8 +38,7 @@ class ProcessListScreen extends StatelessWidget {
                   process: process,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) =>
-                          ProcessDetailScreen(processId: process.id),
+                      builder: (_) => ProcessDetailScreen(processId: process.id),
                     ),
                   ),
                 );

@@ -1,9 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../data/repositories/checklist_repository.dart';
 
-/// Owns document checklist tick state per process, cached in memory and
-/// persisted through [ChecklistRepository] so it survives offline and
-/// across app restarts.
 class ChecklistProvider extends ChangeNotifier {
   ChecklistProvider({required ChecklistRepository repository})
       : _repository = repository;

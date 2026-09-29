@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_strings.dart';
+import '../../../core/localization/content_text.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_card.dart';
@@ -12,10 +14,13 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppStrings.of(context);
+
     return AppCard(
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             height: 40,
@@ -26,17 +31,18 @@ class CategoryCard extends StatelessWidget {
             ),
             child: Icon(category.icon, color: AppColors.accent, size: 22),
           ),
-          const SizedBox(height: 12),
-          Text(
-            category.name,
-            style: AppTextStyles.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${category.processCount} guides',
-            style: AppTextStyles.caption,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ContentText.categoryName(context, category),
+                style: AppTextStyles.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text('${category.processCount} ${t('guides_count')}', style: AppTextStyles.caption),
+            ],
           ),
         ],
       ),

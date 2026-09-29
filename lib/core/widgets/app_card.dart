@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// A reusable bordered surface card with consistent padding and tap
-/// handling, so every screen builds cards the same way.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,

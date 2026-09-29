@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../core/localization/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_button.dart';
 
-/// "Report outdated info" in two taps, per the product spec.
 class ReportIssueSheet extends StatefulWidget {
   const ReportIssueSheet({super.key, required this.processTitle});
 
@@ -25,12 +25,7 @@ class _ReportIssueSheetState extends State<ReportIssueSheet> {
   String? _selectedReason;
   bool _sent = false;
 
-  static const _reasons = [
-    'Fee amount is wrong',
-    'Document requirement changed',
-    'Office moved or closed',
-    'Something else',
-  ];
+  static const _reasonKeys = ['reason_fee', 'reason_document', 'reason_office', 'reason_other'];
 
   @override
   Widget build(BuildContext context) {
@@ -41,56 +36,54 @@ class _ReportIssueSheetState extends State<ReportIssueSheet> {
         top: 20,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
-      child: _sent ? _buildConfirmation() : _buildForm(),
+      child: _sent ? _buildConfirmation(context) : _buildForm(context),
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(BuildContext context) {
+    final t = AppStrings.of(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Report outdated info', style: AppTextStyles.headline),
+        Text(t('report_title'), style: AppTextStyles.headline),
         const SizedBox(height: 4),
         Text(widget.processTitle, style: AppTextStyles.bodyMuted),
         const SizedBox(height: 16),
-        for (final reason in _reasons)
+        for (final key in _reasonKeys)
           RadioListTile<String>(
-            value: reason,
+            value: key,
             groupValue: _selectedReason,
             onChanged: (v) => setState(() => _selectedReason = v),
-            title: Text(reason, style: AppTextStyles.body),
+            title: Text(t(key), style: AppTextStyles.body),
             activeColor: AppColors.accent,
             contentPadding: EdgeInsets.zero,
             dense: true,
           ),
         const SizedBox(height: 12),
         AppButton(
-          label: 'Send report',
-          onPressed: _selectedReason == null
-              ? null
-              : () => setState(() => _sent = true),
+          label: t('send_report'),
+          onPressed: _selectedReason == null ? null : () => setState(() => _sent = true),
         ),
       ],
     );
   }
 
-  Widget _buildConfirmation() {
+  Widget _buildConfirmation(BuildContext context) {
+    final t = AppStrings.of(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 44),
         const SizedBox(height: 12),
-        Text('Thanks — sent to the review team', style: AppTextStyles.title),
+        Text(t('report_sent_title'), style: AppTextStyles.title),
         const SizedBox(height: 6),
-        Text(
-          'We\'ll verify and update this guide.',
-          style: AppTextStyles.bodyMuted,
-          textAlign: TextAlign.center,
-        ),
+        Text(t('report_sent_body'), style: AppTextStyles.bodyMuted, textAlign: TextAlign.center),
         const SizedBox(height: 16),
         AppButton(
-          label: 'Done',
+          label: t('done'),
           variant: AppButtonVariant.secondary,
           onPressed: () => Navigator.of(context).pop(),
         ),

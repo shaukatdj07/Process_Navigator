@@ -1,34 +1,71 @@
 import 'package:flutter/foundation.dart';
+import '../../core/utils/money.dart';
 
-/// Office information for a process.
 @immutable
 class OfficeInfo {
   const OfficeInfo({
-    required this.name,
-    required this.address,
+    required this.department,
+    required this.cityAddresses,
     required this.timings,
+    this.fallbackNote,
   });
 
-  final String name;
-  final String address;
+  final String department;
+  final Map<String, String> cityAddresses;
   final String timings;
+  final String? fallbackNote;
+
+  String? _verifiedFor(String? userCity) {
+    if (userCity == null || userCity.trim().isEmpty) return null;
+    final wanted = userCity.trim().toLowerCase();
+    for (final entry in cityAddresses.entries) {
+      if (entry.key.toLowerCase() == wanted) return entry.value;
+    }
+    return null;
+  }
+
+  bool hasVerifiedAddressFor(String? userCity) => _verifiedFor(userCity) != null;
+
+  String addressFor(String? userCity) {
+    return _verifiedFor(userCity) ??
+        fallbackNote ??
+        'Visit your nearest $department office and confirm the exact branch locally.';
+  }
+
+  String? routingAddressFor(String? userCity) => _verifiedFor(userCity);
 }
 
-/// Fee information, with an optional simple calculator range.
+@immutable
+class FeeTier {
+  const FeeTier(this.label, this.amountText);
+
+  factory FeeTier.rs(String label, int amount) => FeeTier(label, Money.rs(amount));
+
+  final String label;
+  final String amountText;
+}
+
 @immutable
 class FeeInfo {
   const FeeInfo({
-    required this.baseFee,
+    this.tiers = const [],
     this.notes,
-    this.dependsOnVehicleType = false,
+    this.variesLocally = false,
   });
 
-  final int baseFee;
+  factory FeeInfo.flat(int amount, {String? notes}) {
+    return FeeInfo(tiers: [FeeTier.rs('Fee', amount)], notes: notes);
+  }
+
+  const FeeInfo.varies({required String this.notes})
+      : tiers = const [],
+        variesLocally = true;
+
+  final List<FeeTier> tiers;
   final String? notes;
-  final bool dependsOnVehicleType;
+  final bool variesLocally;
 }
 
-/// Submission instructions for a process step.
 @immutable
 class SubmitInfo {
   const SubmitInfo({required this.instructions, required this.receiptNote});
@@ -37,7 +74,6 @@ class SubmitInfo {
   final String receiptNote;
 }
 
-/// What happens after submission — timeline and follow-up.
 @immutable
 class NextStepInfo {
   const NextStepInfo({required this.timeline, required this.followUp});
@@ -46,7 +82,6 @@ class NextStepInfo {
   final String followUp;
 }
 
-/// Official source badge shown on every step.
 @immutable
 class SourceInfo {
   const SourceInfo({

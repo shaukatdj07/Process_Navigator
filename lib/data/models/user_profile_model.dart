@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-/// "Saved Details" profile — every field is optional per the product spec.
-/// Stored locally only; CNIC is never uploaded anywhere.
 @immutable
 class UserProfileModel {
   const UserProfileModel({
@@ -60,8 +58,6 @@ class UserProfileModel {
     );
   }
 
-  /// Plain-map form for Hive storage — avoids needing a generated
-  /// TypeAdapter, which keeps the build simple for a first release.
   Map<String, dynamic> toMap() {
     return {
       'fullName': fullName,

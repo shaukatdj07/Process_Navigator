@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/localization/app_strings.dart';
+import '../../core/localization/content_text.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/empty_state.dart';
@@ -15,9 +17,6 @@ import 'widgets/step_tab_next.dart';
 import 'widgets/step_tab_office.dart';
 import 'widgets/step_tab_submit.dart';
 
-/// Ordered step-by-step guide for a single process: documents, office,
-/// fee, submit, and next-step — each with its own tab, matching the
-/// product's five-part checklist.
 class ProcessDetailScreen extends StatefulWidget {
   const ProcessDetailScreen({super.key, required this.processId});
 
@@ -52,42 +51,41 @@ class _ProcessDetailScreenState extends State<ProcessDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(body: LoadingIndicator());
-    }
+    final t = AppStrings.of(context);
+
+    if (_loading) return const Scaffold(body: LoadingIndicator());
+
     final process = _process;
     if (process == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const EmptyState(
+        body: EmptyState(
           icon: Icons.error_outline_rounded,
-          title: 'Guide not found',
-          message: 'This guide may have been moved or renamed.',
+          title: t('not_found_title'),
+          message: t('not_found_message'),
         ),
       );
     }
+
+    final title = ContentText.processTitle(context, process);
 
     return DefaultTabController(
       length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            process.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          bottom: const TabBar(
+          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          bottom: TabBar(
             isScrollable: true,
             labelColor: AppColors.accent,
             unselectedLabelColor: AppColors.inkMuted,
             indicatorColor: AppColors.accent,
             labelStyle: AppTextStyles.title,
             tabs: [
-              Tab(text: 'Documents'),
-              Tab(text: 'Office'),
-              Tab(text: 'Fee'),
-              Tab(text: 'Submit'),
-              Tab(text: 'Next'),
+              Tab(text: t('tab_documents')),
+              Tab(text: t('tab_office')),
+              Tab(text: t('tab_fee')),
+              Tab(text: t('tab_submit')),
+              Tab(text: t('tab_next')),
             ],
           ),
         ),
@@ -97,8 +95,7 @@ class _ProcessDetailScreenState extends State<ProcessDetailScreen> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: SourceBadge(
                 source: process.source,
-                onReport: () =>
-                    ReportIssueSheet.show(context, process.title),
+                onReport: () => ReportIssueSheet.show(context, title),
               ),
             ),
             Expanded(

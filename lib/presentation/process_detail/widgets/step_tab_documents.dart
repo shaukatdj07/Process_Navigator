@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_card.dart';
@@ -18,6 +19,7 @@ class DocumentsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppStrings.of(context);
     final checklist = context.watch<ChecklistProvider>();
     final checkedCount = checklist.checkedFor(processId).length;
     final progress = documents.isEmpty ? 0.0 : checkedCount / documents.length;
@@ -32,9 +34,8 @@ class DocumentsTab extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Your progress', style: AppTextStyles.title),
-                  Text('$checkedCount / ${documents.length}',
-                      style: AppTextStyles.bodyMuted),
+                  Text(t('your_progress'), style: AppTextStyles.title),
+                  Text('$checkedCount / ${documents.length}', style: AppTextStyles.bodyMuted),
                 ],
               ),
               const SizedBox(height: 10),
@@ -53,6 +54,8 @@ class DocumentsTab extends StatelessWidget {
         const SizedBox(height: 16),
         ...documents.map((doc) {
           final checked = checklist.isChecked(processId, doc.id);
+          final copyWord = doc.copies == 1 ? t('copy') : t('copies');
+          final attestation = doc.attestationRequired ? ' , ${t('attestation_required')}' : '';
           return Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: AppCard(
@@ -71,18 +74,11 @@ class DocumentsTab extends StatelessWidget {
                         Text(
                           doc.title,
                           style: AppTextStyles.body.copyWith(
-                            decoration:
-                                checked ? TextDecoration.lineThrough : null,
-                            color: checked
-                                ? AppColors.inkFaint
-                                : AppColors.ink,
+                            decoration: checked ? TextDecoration.lineThrough : null,
+                            color: checked ? AppColors.inkFaint : AppColors.ink,
                           ),
                         ),
-                        Text(
-                          '${doc.copies} ${doc.copies == 1 ? 'copy' : 'copies'}'
-                          '${doc.attestationRequired ? ' • attestation required' : ''}',
-                          style: AppTextStyles.caption,
-                        ),
+                        Text('${doc.copies} $copyWord$attestation', style: AppTextStyles.caption),
                       ],
                     ),
                   ),

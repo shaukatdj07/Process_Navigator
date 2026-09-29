@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
 
-/// Centralised color palette following the 60/30/10 design rule.
-///
-/// 60% — [background]   dominant background & surfaces
-/// 30% — [ink]           typography & secondary surfaces
-/// 10% — [accent]        CTAs, links & visual emphasis
+
 class AppColors {
   const AppColors._();
 
-  static const Color background = Color(0xFFF7F4ED); // 60% dominant
-  static const Color ink = Color(0xFF111111); // 30% typography/secondary
-  static const Color accent = Color(0xFF5B7CFF); // 10% CTAs/links/emphasis
+  static const Color background = Color(0xFFF7F4ED);
+  static const Color ink = Color(0xFF111111);
+  static const Color accent = Color(0xFF5B7CFF);
 
-  // Derived / supporting tones kept within the same palette family so the
-  // 60/30/10 ratio holds across states (hover, disabled, borders, etc.).
   static const Color surface = Colors.white;
   static const Color surfaceMuted = Color(0xFFEFEBE1);
   static const Color inkMuted = Color(0xFF5C5C5C);

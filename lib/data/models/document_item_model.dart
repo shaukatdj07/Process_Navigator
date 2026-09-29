@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 
-/// A single required document line within a process's checklist step.
 @immutable
 class DocumentItemModel {
   const DocumentItemModel({

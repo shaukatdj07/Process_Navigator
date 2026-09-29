@@ -2,8 +2,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../core/constants/app_constants.dart';
 import '../models/user_profile_model.dart';
 
-/// Persists "Saved Details" locally. CNIC and other sensitive fields never
-/// leave the device — this repository has no network calls at all.
 abstract class ProfileRepository {
   Future<UserProfileModel> getProfile();
   Future<void> saveProfile(UserProfileModel profile);

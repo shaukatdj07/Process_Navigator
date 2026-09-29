@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_text_styles.dart';
 
-/// A labeled text field used by forms such as Saved Details (My Profile).
+
 class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
@@ -11,7 +11,7 @@ class AppTextField extends StatelessWidget {
     this.keyboardType,
     this.obscureText = false,
     this.suffixIcon,
-    this.optional = true,
+    this.optionalText,
   });
 
   final String label;
@@ -20,7 +20,7 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool obscureText;
   final Widget? suffixIcon;
-  final bool optional;
+  final String? optionalText;
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +32,8 @@ class AppTextField extends StatelessWidget {
             text: label,
             style: AppTextStyles.title,
             children: [
-              if (optional)
-                const TextSpan(
-                  text: '  (optional)',
-                  style: AppTextStyles.caption,
-                ),
+              if (optionalText != null)
+                TextSpan(text: '  ($optionalText)', style: AppTextStyles.caption),
             ],
           ),
         ),
@@ -46,10 +43,7 @@ class AppTextField extends StatelessWidget {
           keyboardType: keyboardType,
           obscureText: obscureText,
           style: AppTextStyles.body,
-          decoration: InputDecoration(
-            hintText: hint,
-            suffixIcon: suffixIcon,
-          ),
+          decoration: InputDecoration(hintText: hint, suffixIcon: suffixIcon),
         ),
       ],
     );

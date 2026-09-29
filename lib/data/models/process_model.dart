@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'document_item_model.dart';
 import 'process_step_model.dart';
-
-/// A single official process, e.g. "Vehicle Ownership Transfer".
 @immutable
 class ProcessModel {
   const ProcessModel({

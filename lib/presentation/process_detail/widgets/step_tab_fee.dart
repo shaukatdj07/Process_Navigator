@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_card.dart';
@@ -11,6 +12,8 @@ class FeeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppStrings.of(context);
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       children: [
@@ -18,37 +21,51 @@ class FeeTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Official fee', style: AppTextStyles.title),
-              const SizedBox(height: 6),
-              Text(
-                fee.baseFee == 0 ? 'Free' : 'Rs. ${fee.baseFee}',
-                style: AppTextStyles.displayLarge.copyWith(color: AppColors.accent),
-              ),
+              Text(t('official_fee'), style: AppTextStyles.title),
+              const SizedBox(height: 10),
+              // Jab pakka number nahi mila to number ki jagah office se
+              // confirm karne ka kehte hain.
+              if (fee.variesLocally)
+                Text(
+                  t('confirm_at_office'),
+                  style: AppTextStyles.headline.copyWith(color: AppColors.accent),
+                )
+              else
+                for (final tier in fee.tiers) _TierRow(tier: tier),
               if (fee.notes != null) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(fee.notes!, style: AppTextStyles.bodyMuted),
               ],
             ],
           ),
         ),
-        if (fee.dependsOnVehicleType) ...[
-          const SizedBox(height: 16),
-          AppCard(
-            child: Row(
-              children: [
-                const Icon(Icons.calculate_outlined, color: AppColors.accent),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Save your vehicle type in Saved Details to see an estimate pre-filled here automatically.',
-                    style: AppTextStyles.bodyMuted,
-                  ),
-                ),
-              ],
-            ),
+      ],
+    );
+  }
+}
+
+class _TierRow extends StatelessWidget {
+  const _TierRow({required this.tier});
+
+  final FeeTier tier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(child: Text(tier.label, style: AppTextStyles.body)),
+          const SizedBox(width: 12),
+          Text(
+            tier.amountText,
+            style: AppTextStyles.title.copyWith(color: AppColors.accent),
+            textAlign: TextAlign.end,
           ),
         ],
-      ],
+      ),
     );
   }
 }

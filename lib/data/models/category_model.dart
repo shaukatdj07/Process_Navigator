@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Immutable data model for a process category (e.g. Vehicles, Documents).
 @immutable
 class CategoryModel {
   const CategoryModel({

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../core/localization/app_strings.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/responsive.dart';
@@ -8,10 +9,9 @@ import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_text_field.dart';
 import '../../data/models/user_profile_model.dart';
+import '../../data/services/location_service.dart';
 import '../../providers/profile_provider.dart';
 
-/// "Saved Details (My Profile)" — every field is optional. Nothing is
-/// uploaded; CNIC and dates are kept only in local encrypted storage.
 class SavedDetailsScreen extends StatefulWidget {
   const SavedDetailsScreen({super.key});
 
@@ -28,139 +28,19 @@ class _SavedDetailsScreenState extends State<SavedDetailsScreen> {
   late final TextEditingController _vehicleType;
   DateTime? _licenseExpiry;
   DateTime? _passportExpiry;
-  bool _initialized = false;
 
   @override
-  Widget build(BuildContext context) {
-    final profileProvider = context.watch<ProfileProvider>();
-
-    if (!_initialized) {
-      final p = profileProvider.profile;
-      _name = TextEditingController(text: p.fullName);
-      _father = TextEditingController(text: p.fatherName);
-      _city = TextEditingController(text: p.city);
-      _phone = TextEditingController(text: p.phone);
-      _cnic = TextEditingController(text: p.cnic);
-      _vehicleType = TextEditingController(text: p.vehicleType);
-      _licenseExpiry = p.licenseExpiry;
-      _passportExpiry = p.passportExpiry;
-      _initialized = true;
-    }
-
-    final padding = Responsive.pagePadding(context);
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Saved Details')),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(padding, 16, padding, 32),
-        children: [
-          AppCard(
-            child: Row(
-              children: [
-                const Icon(Icons.lock_outline_rounded, color: AppColors.accent),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Everything here stays on this device. Nothing is uploaded, and every field is optional.',
-                    style: AppTextStyles.bodyMuted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          AppTextField(label: 'Full name', controller: _name),
-          const SizedBox(height: 16),
-          AppTextField(label: "Father's name", controller: _father),
-          const SizedBox(height: 16),
-          AppTextField(label: 'City / district', controller: _city),
-          const SizedBox(height: 16),
-          AppTextField(
-            label: 'Phone number',
-            controller: _phone,
-            keyboardType: TextInputType.phone,
-          ),
-          const SizedBox(height: 16),
-          AppTextField(
-            label: 'CNIC number',
-            controller: _cnic,
-            keyboardType: TextInputType.number,
-            hint: 'Stored encrypted, never uploaded',
-          ),
-          const SizedBox(height: 16),
-          AppTextField(label: 'Vehicle type', controller: _vehicleType),
-          const SizedBox(height: 16),
-          _DatePickerField(
-            label: 'License expiry',
-            value: _licenseExpiry,
-            onChanged: (d) => setState(() => _licenseExpiry = d),
-          ),
-          const SizedBox(height: 16),
-          _DatePickerField(
-            label: 'Passport expiry',
-            value: _passportExpiry,
-            onChanged: (d) => setState(() => _passportExpiry = d),
-          ),
-          const SizedBox(height: 28),
-          AppButton(label: 'Save details', onPressed: _save),
-          const SizedBox(height: 12),
-          AppButton(
-            label: 'Erase all my data',
-            variant: AppButtonVariant.text,
-            onPressed: _confirmErase,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _save() async {
-    final profile = UserProfileModel(
-      fullName: _name.text.trim(),
-      fatherName: _father.text.trim(),
-      city: _city.text.trim(),
-      phone: _phone.text.trim(),
-      cnic: _cnic.text.trim(),
-      vehicleType: _vehicleType.text.trim(),
-      licenseExpiry: _licenseExpiry,
-      passportExpiry: _passportExpiry,
-    );
-    await context.read<ProfileProvider>().save(profile);
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Saved details updated')),
-    );
-  }
-
-  Future<void> _confirmErase() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Erase all my data?'),
-        content: const Text(
-          'This clears everything saved on this device, including your CNIC and reminders. This cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Erase', style: TextStyle(color: AppColors.danger)),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    await context.read<ProfileProvider>().eraseAll();
-    if (!mounted) return;
-    setState(() {
-      _initialized = false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All saved details erased')),
-    );
+  void initState() {
+    super.initState();
+    final p = context.read<ProfileProvider>().profile;
+    _name = TextEditingController(text: p.fullName);
+    _father = TextEditingController(text: p.fatherName);
+    _city = TextEditingController(text: p.city);
+    _phone = TextEditingController(text: p.phone);
+    _cnic = TextEditingController(text: p.cnic);
+    _vehicleType = TextEditingController(text: p.vehicleType);
+    _licenseExpiry = p.licenseExpiry;
+    _passportExpiry = p.passportExpiry;
   }
 
   @override
@@ -173,16 +53,184 @@ class _SavedDetailsScreenState extends State<SavedDetailsScreen> {
     _vehicleType.dispose();
     super.dispose();
   }
+
+  Future<void> _detectCity() async {
+    final t = AppStrings.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final provider = context.read<ProfileProvider>();
+
+    String message;
+    try {
+      final city = await provider.detectCity();
+      if (city == null) {
+        message = t('city_not_found');
+      } else {
+        _city.text = city;
+        message = t.format('city_detected', {'city': city});
+      }
+    } on LocationException catch (e) {
+      message = switch (e.reason) {
+        LocationFailure.serviceOff => t('trip_location_off'),
+        LocationFailure.denied => t('trip_location_denied'),
+        LocationFailure.deniedForever => t('trip_location_denied_forever'),
+        LocationFailure.unknown => t('trip_location_unknown'),
+      };
+    } catch (_) {
+      message = t('trip_network_error');
+    }
+    messenger.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _save() async {
+    final t = AppStrings.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final profile = UserProfileModel(
+      fullName: _name.text.trim(),
+      fatherName: _father.text.trim(),
+      city: _city.text.trim(),
+      phone: _phone.text.trim(),
+      cnic: _cnic.text.trim(),
+      vehicleType: _vehicleType.text.trim(),
+      licenseExpiry: _licenseExpiry,
+      passportExpiry: _passportExpiry,
+    );
+    await context.read<ProfileProvider>().save(profile);
+    messenger.showSnackBar(SnackBar(content: Text(t('saved_snack'))));
+  }
+
+  Future<void> _confirmErase() async {
+    final t = AppStrings.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final provider = context.read<ProfileProvider>();
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(t('erase_confirm_title')),
+        content: Text(t('erase_confirm_body')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(t('cancel')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(t('erase'), style: const TextStyle(color: AppColors.danger)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    await provider.eraseAll();
+    _name.clear();
+    _father.clear();
+    _city.clear();
+    _phone.clear();
+    _cnic.clear();
+    _vehicleType.clear();
+    setState(() {
+      _licenseExpiry = null;
+      _passportExpiry = null;
+    });
+    messenger.showSnackBar(SnackBar(content: Text(t('erased_snack'))));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppStrings.of(context);
+    final padding = Responsive.pagePadding(context);
+    final detecting = context.watch<ProfileProvider>().isDetectingCity;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(t('saved_details_title'))),
+      body: ListView(
+        padding: EdgeInsets.fromLTRB(padding, 16, padding, 32),
+        children: [
+          AppCard(
+            child: Row(
+              children: [
+                const Icon(Icons.lock_outline_rounded, color: AppColors.accent),
+                const SizedBox(width: 12),
+                Expanded(child: Text(t('saved_details_privacy'), style: AppTextStyles.bodyMuted)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          AppTextField(label: t('full_name'), optionalText: t('optional'), controller: _name),
+          const SizedBox(height: 16),
+          AppTextField(label: t('father_name'), optionalText: t('optional'), controller: _father),
+          const SizedBox(height: 16),
+          AppTextField(label: t('city_district'), optionalText: t('optional'), controller: _city),
+          const SizedBox(height: 4),
+          Text(t('city_helper'), style: AppTextStyles.caption),
+          const SizedBox(height: 8),
+          AppButton(
+            label: t('use_my_location'),
+            icon: Icons.my_location_rounded,
+            variant: AppButtonVariant.secondary,
+            isLoading: detecting,
+            onPressed: _detectCity,
+          ),
+          const SizedBox(height: 16),
+          AppTextField(
+            label: t('phone_number'),
+            optionalText: t('optional'),
+            controller: _phone,
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 16),
+          AppTextField(
+            label: t('cnic_number'),
+            optionalText: t('optional'),
+            controller: _cnic,
+            keyboardType: TextInputType.number,
+            hint: t('cnic_hint'),
+          ),
+          const SizedBox(height: 16),
+          AppTextField(label: t('vehicle_type'), optionalText: t('optional'), controller: _vehicleType),
+          const SizedBox(height: 16),
+          _DatePickerField(
+            label: t('license_expiry'),
+            optionalText: t('optional'),
+            emptyText: t('set_reminder_date'),
+            value: _licenseExpiry,
+            onChanged: (d) => setState(() => _licenseExpiry = d),
+          ),
+          const SizedBox(height: 16),
+          _DatePickerField(
+            label: t('passport_expiry'),
+            optionalText: t('optional'),
+            emptyText: t('set_reminder_date'),
+            value: _passportExpiry,
+            onChanged: (d) => setState(() => _passportExpiry = d),
+          ),
+          const SizedBox(height: 28),
+          AppButton(label: t('save_details'), onPressed: _save),
+          const SizedBox(height: 12),
+          AppButton(
+            label: t('erase_all'),
+            variant: AppButtonVariant.text,
+            onPressed: _confirmErase,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _DatePickerField extends StatelessWidget {
   const _DatePickerField({
     required this.label,
+    required this.optionalText,
+    required this.emptyText,
     required this.value,
     required this.onChanged,
   });
 
   final String label;
+  final String optionalText;
+  final String emptyText;
   final DateTime? value;
   final ValueChanged<DateTime?> onChanged;
 
@@ -191,7 +239,7 @@ class _DatePickerField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('$label  (optional)', style: AppTextStyles.title),
+        Text('$label  ($optionalText)', style: AppTextStyles.title),
         const SizedBox(height: 8),
         InkWell(
           borderRadius: BorderRadius.circular(12),
@@ -200,9 +248,9 @@ class _DatePickerField extends StatelessWidget {
               context: context,
               initialDate: value ?? DateTime.now(),
               firstDate: DateTime(2020),
-              lastDate: DateTime(2040),
+              lastDate: DateTime(2050),
             );
-            onChanged(picked);
+            if (picked != null) onChanged(picked);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -216,9 +264,7 @@ class _DatePickerField extends StatelessWidget {
                 const Icon(Icons.event_outlined, size: 18, color: AppColors.inkFaint),
                 const SizedBox(width: 10),
                 Text(
-                  value == null
-                      ? 'Set a reminder date'
-                      : DateFormat('d MMM yyyy').format(value!),
+                  value == null ? emptyText : DateFormat('d MMM yyyy').format(value!),
                   style: value == null ? AppTextStyles.bodyMuted : AppTextStyles.body,
                 ),
               ],

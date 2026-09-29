@@ -5,8 +5,6 @@ import '../data/repositories/process_repository.dart';
 
 enum LoadStatus { idle, loading, loaded, error }
 
-/// Owns category/process data and search state for the Home and Process
-/// List screens. Depends only on the [ProcessRepository] abstraction.
 class ProcessProvider extends ChangeNotifier {
   ProcessProvider({required ProcessRepository repository})
       : _repository = repository;

@@ -3,9 +3,7 @@ import '../theme/app_colors.dart';
 
 enum AppButtonVariant { primary, secondary, text }
 
-/// A single reusable button widget used across the app so every CTA shares
-/// the same shape, height and states (Single Responsibility: renders a
-/// button; it does not know about the action it triggers).
+
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
