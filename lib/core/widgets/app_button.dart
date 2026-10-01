@@ -3,7 +3,6 @@ import '../theme/app_colors.dart';
 
 enum AppButtonVariant { primary, secondary, text }
 
-
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
@@ -25,7 +24,7 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final child = isLoading
-        ? const SizedBox(
+        ? SizedBox(
             height: 20,
             width: 20,
             child: CircularProgressIndicator(

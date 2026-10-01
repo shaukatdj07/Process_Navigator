@@ -1,13 +1,13 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
-import '../data/models/process_step_model.dart';
 import '../data/models/trip_settings_model.dart';
 import '../data/repositories/trip_settings_repository.dart';
 import '../data/services/location_service.dart';
 import '../data/services/routing_service.dart';
 import '../domain/trip_cost_calculator.dart';
 
-enum TripStatus { idle, loading, ready, error }
-
+enum LocationStatus { idle, loading, error }
 
 class TripProvider extends ChangeNotifier {
   TripProvider({
@@ -24,12 +24,8 @@ class TripProvider extends ChangeNotifier {
 
   TripSettingsModel settings = const TripSettingsModel();
   TransportMode mode = TransportMode.bike;
-  TripStatus status = TripStatus.idle;
-  TripCost? result;
-
+  LocationStatus locationStatus = LocationStatus.idle;
   String? errorKey;
-
-  double? _lastDistanceKm;
 
   Future<void> loadSettings() async {
     settings = await _settingsRepository.load();
@@ -39,50 +35,42 @@ class TripProvider extends ChangeNotifier {
   Future<void> saveSettings(TripSettingsModel updated) async {
     settings = updated;
     await _settingsRepository.save(updated);
-
-    final distance = _lastDistanceKm;
-    if (distance != null) {
-      result = TripCostCalculator.calculate(mode: mode, distanceKm: distance, settings: settings);
-    }
     notifyListeners();
   }
 
   void selectMode(TransportMode newMode) {
     mode = newMode;
-    final distance = _lastDistanceKm;
-    if (distance != null) {
-      result = TripCostCalculator.calculate(mode: mode, distanceKm: distance, settings: settings);
-    }
     notifyListeners();
   }
 
-  Future<void> calculate({required OfficeInfo office, required String? userCity}) async {
-    final address = office.routingAddressFor(userCity);
-    if (address == null) {
-      _fail('trip_no_verified_office');
-      return;
-    }
+  void clearError() {
+    if (locationStatus == LocationStatus.idle) return;
+    locationStatus = LocationStatus.idle;
+    errorKey = null;
+    notifyListeners();
+  }
 
-    status = TripStatus.loading;
+  Future<double?> distanceFromMyLocation(String officeAddress) async {
+    if (locationStatus == LocationStatus.loading) return null;
+    locationStatus = LocationStatus.loading;
     errorKey = null;
     notifyListeners();
 
     try {
       final from = await _locationService.currentPosition();
-      final to = await _routingService.geocode(address);
+      final to = await _routingService.geocode(officeAddress);
       if (to == null) {
         _fail('trip_office_not_found');
-        return;
+        return null;
       }
       final distance = await _routingService.roadDistanceKm(from, to);
       if (distance == null) {
-        _fail('trip_route_failed');
-        return;
+        _fail('trip_no_route');
+        return null;
       }
-      _lastDistanceKm = distance;
-      result = TripCostCalculator.calculate(mode: mode, distanceKm: distance, settings: settings);
-      status = TripStatus.ready;
+      locationStatus = LocationStatus.idle;
       notifyListeners();
+      return distance;
     } on LocationException catch (e) {
       switch (e.reason) {
         case LocationFailure.serviceOff:
@@ -94,23 +82,22 @@ class TripProvider extends ChangeNotifier {
         case LocationFailure.unknown:
           _fail('trip_location_unknown');
       }
+    } on RoutingException {
+      _fail('trip_route_failed');
+    } on TimeoutException {
+      _fail('trip_timeout');
+    } on SocketException {
+      _fail('trip_network_error');
     } catch (_) {
       _fail('trip_network_error');
     }
+    return null;
   }
 
   Future<void> openLocationSettings() => _locationService.openSettings();
 
-  void reset() {
-    status = TripStatus.idle;
-    result = null;
-    errorKey = null;
-    _lastDistanceKm = null;
-    notifyListeners();
-  }
-
   void _fail(String key) {
-    status = TripStatus.error;
+    locationStatus = LocationStatus.error;
     errorKey = key;
     notifyListeners();
   }

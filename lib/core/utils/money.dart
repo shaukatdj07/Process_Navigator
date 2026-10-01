@@ -1,6 +1,5 @@
 import 'package:intl/intl.dart';
 
-
 class Money {
   const Money._();
 

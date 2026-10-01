@@ -2,7 +2,6 @@ import '../models/document_item_model.dart';
 import '../models/process_model.dart';
 import '../models/process_step_model.dart';
 
-
 const OfficeInfo _unionCouncil = OfficeInfo(
   department: 'Union Council Office',
   cityAddresses: {},

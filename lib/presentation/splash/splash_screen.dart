@@ -70,14 +70,14 @@ void initState() {
                 height: 88,
                 width: 88,
                 decoration: BoxDecoration(
-                  color: AppColors.accent,
-                  borderRadius: BorderRadius.circular(24),
+                  gradient: AppColors.heroGradient,
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(color: AppColors.highlight, width: 3),
+                  boxShadow: const [
+                    BoxShadow(color: Color(0x400B6E4F), blurRadius: 24, offset: Offset(0, 10)),
+                  ],
                 ),
-                child: const Icon(
-                  Icons.explore_rounded,
-                  color: AppColors.surface,
-                  size: 44,
-                ),
+                child: const Icon(Icons.explore_rounded, color: Colors.white, size: 44),
               ),
               const SizedBox(height: 20),
               Text(t('app_name'), style: AppTextStyles.displayLarge),
@@ -91,7 +91,7 @@ void initState() {
                 ),
               ),
               const SizedBox(height: 32),
-              const SizedBox(
+              SizedBox(
                 height: 22,
                 width: 22,
                 child: CircularProgressIndicator(

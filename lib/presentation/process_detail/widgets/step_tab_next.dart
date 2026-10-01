@@ -23,7 +23,7 @@ class NextStepTab extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.timer_outlined, color: AppColors.accent),
+                  Icon(Icons.timer_outlined, color: AppColors.accent),
                   const SizedBox(width: 10),
                   Text(t('expected_timeline'), style: AppTextStyles.title),
                 ],
@@ -40,7 +40,7 @@ class NextStepTab extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.flag_outlined, color: AppColors.accent),
+                  Icon(Icons.flag_outlined, color: AppColors.accent),
                   const SizedBox(width: 10),
                   Text(t('follow_up'), style: AppTextStyles.title),
                 ],

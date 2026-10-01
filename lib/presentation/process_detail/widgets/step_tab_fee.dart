@@ -3,6 +3,7 @@ import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/icon_badge.dart';
 import '../../../data/models/process_step_model.dart';
 
 class FeeTab extends StatelessWidget {
@@ -18,13 +19,19 @@ class FeeTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       children: [
         AppCard(
+          accentColor: AppColors.highlight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(t('official_fee'), style: AppTextStyles.title),
+              Row(
+                children: [
+                  IconBadge(icon: Icons.payments_rounded, color: AppColors.highlight, size: 40),
+                  const SizedBox(width: 12),
+                  Text(t('official_fee'), style: AppTextStyles.title),
+                ],
+              ),
               const SizedBox(height: 10),
-              // Jab pakka number nahi mila to number ki jagah office se
-              // confirm karne ka kehte hain.
+
               if (fee.variesLocally)
                 Text(
                   t('confirm_at_office'),
@@ -61,7 +68,7 @@ class _TierRow extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             tier.amountText,
-            style: AppTextStyles.title.copyWith(color: AppColors.accent),
+            style: AppTextStyles.figure.copyWith(fontSize: 20),
             textAlign: TextAlign.end,
           ),
         ],

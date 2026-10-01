@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 
-
 class AppStrings {
   const AppStrings._(this._values);
 
@@ -13,9 +12,13 @@ class AppStrings {
     return AppStrings._(locale.isUrdu ? _ur : _en);
   }
 
+  static AppStrings read(BuildContext context) {
+    final locale = context.read<LocaleProvider>();
+    return AppStrings._(locale.isUrdu ? _ur : _en);
+  }
+
   String call(String key) => _values[key] ?? key;
 
-  // {city} jaisi jagah par asli value rakhne ke liye.
   String format(String key, Map<String, String> values) {
     var text = call(key);
     values.forEach((name, value) => text = text.replaceAll('{$name}', value));
@@ -62,8 +65,6 @@ class AppStrings {
 
     'settings_title': 'Settings',
     'language': 'Language',
-    'offline_note': 'Saved guides and your profile work fully offline.',
-    'about': 'About',
     'version': 'Version',
 
     'tab_documents': 'Documents',
@@ -78,15 +79,10 @@ class AppStrings {
     'attestation_required': 'attestation required',
 
     'get_directions': 'Get directions',
-    'directions_snack': 'Map directions open once your city is set in Saved Details.',
     'address': 'Address',
     'timings': 'Timings',
 
     'official_fee': 'Official fee',
-    'free': 'Free',
-    'fee_calculator_note': 'Save your vehicle type in Saved Details to see an estimate pre filled here automatically.',
-
-    'keep_receipt': 'Keep the receipt',
 
     'expected_timeline': 'Expected timeline',
     'follow_up': 'Follow up',
@@ -123,8 +119,14 @@ class AppStrings {
     'mode_car': 'Car',
     'mode_rickshaw': 'Rickshaw',
     'mode_bus': 'Bus',
-    'trip_calculate': 'Calculate distance and cost',
-    'trip_calculating': 'Calculating...',
+    'trip_calculating': 'Finding your distance...',
+    'appearance': 'Appearance',
+    'theme_system': 'System',
+    'theme_light': 'Light',
+    'theme_dark': 'Dark',
+    'edit_details': 'Edit details',
+    'not_set': 'Not set',
+    'saved_details_ready': 'Your details are saved on this device.',
     'trip_distance': 'Road distance',
     'trip_one_way': 'One way',
     'trip_round': 'Round trip',
@@ -138,25 +140,26 @@ class AppStrings {
     'trip_car_mileage': 'Car mileage (km per litre)',
     'trip_mileage_note': 'Typical starting values. Change them to match your own vehicle.',
     'trip_rickshaw_rate': 'Rickshaw rate per km (Rs.)',
-    'trip_rickshaw_note': 'There is no official per km rickshaw tariff, so enter the rate you are usually quoted.',
+    'trip_rickshaw_note': 'Fare = base fare + rate per km. Starting values are rough estimates, so change them to the rate you are usually quoted.',
     'trip_bus_fare': 'Bus or metro fare per trip (Rs.)',
-    'trip_bus_note': 'Fares differ by service and city. Enter the fare of the bus or metro you will take.',
+    'trip_bus_note': 'Estimated fare. Fares differ by service and city, so enter the fare of the bus or metro you will take.',
     'trip_save': 'Save rates',
-    'trip_missing_rickshaw_rate': 'Enter your rickshaw rate per km to see the fare.',
-    'trip_missing_bus_fare': 'Enter the bus fare to see the cost.',
-    'trip_estimate_note': 'This is an estimate. Distance is the driving road distance from your current location to the office.',
-    'trip_no_verified_office': 'We do not have a verified office address for your city yet, so we cannot measure the distance.',
+    'trip_estimate_note': 'This is an estimated travel cost. It may vary with fuel prices, route, traffic and actual transport fares.',
+    'trip_distance_label': 'Distance to the office',
+    'trip_use_location': 'Use my location',
+    'trip_enter_distance': 'Enter the distance in km and the cost appears automatically.',
     'trip_office_not_found': 'Could not find this office on the map.',
     'trip_route_failed': 'Could not work out a road route.',
+    'trip_no_route': 'No road route was found between you and this office.',
+    'trip_timeout': 'The request took too long. Check your connection and try again.',
+    'trip_vehicle': 'Vehicle',
+    'trip_rickshaw_base': 'Rickshaw base fare (Rs.)',
     'trip_location_off': 'Please turn on location services on your phone.',
     'trip_location_denied': 'Location permission is needed to measure the distance.',
     'trip_location_denied_forever': 'Location permission is blocked. Allow it from app settings.',
     'trip_location_unknown': 'Could not get your current location.',
     'trip_network_error': 'Please check your internet connection and try again.',
     'open_settings': 'Open settings',
-    'source_label': 'Source',
-    'steps': 'Steps',
-    'currency_rs': 'Rs.',
   };
 
   static const Map<String, String> _ur = {
@@ -199,8 +202,6 @@ class AppStrings {
 
     'settings_title': 'ترتیبات',
     'language': 'زبان',
-    'offline_note': 'محفوظ گائیڈز اور آپ کی پروفائل بغیر انٹرنیٹ کے بھی کام کرتی ہیں۔',
-    'about': 'ایپ کے بارے میں',
     'version': 'ورژن',
 
     'tab_documents': 'دستاویزات',
@@ -215,15 +216,10 @@ class AppStrings {
     'attestation_required': 'تصدیق ضروری ہے',
 
     'get_directions': 'راستہ دیکھیں',
-    'directions_snack': 'محفوظ تفصیلات میں شہر لگانے کے بعد نقشہ کھلے گا۔',
     'address': 'پتہ',
     'timings': 'اوقات کار',
 
     'official_fee': 'سرکاری فیس',
-    'free': 'مفت',
-    'fee_calculator_note': 'محفوظ تفصیلات میں گاڑی کی قسم لگائیں تاکہ اندازہ خود بخود یہاں آ جائے۔',
-
-    'keep_receipt': 'رسید ضرور سنبھال کر رکھیں',
 
     'expected_timeline': 'متوقع وقت',
     'follow_up': 'اگلا قدم',
@@ -260,8 +256,14 @@ class AppStrings {
     'mode_car': 'کار',
     'mode_rickshaw': 'رکشہ',
     'mode_bus': 'بس',
-    'trip_calculate': 'فاصلہ اور خرچ معلوم کریں',
     'trip_calculating': 'حساب ہو رہا ہے...',
+    'appearance': 'ظاہری شکل',
+    'theme_system': 'سسٹم',
+    'theme_light': 'لائٹ',
+    'theme_dark': 'ڈارک',
+    'edit_details': 'تفصیلات ایڈٹ کریں',
+    'not_set': 'درج نہیں',
+    'saved_details_ready': 'آپ کی تفصیلات اس موبائل میں محفوظ ہیں۔',
     'trip_distance': 'سڑک کا فاصلہ',
     'trip_one_way': 'ایک طرف کا',
     'trip_round': 'آنا جانا',
@@ -279,20 +281,21 @@ class AppStrings {
     'trip_bus_fare': 'بس یا میٹرو کا کرایہ فی سفر (روپے)',
     'trip_bus_note': 'کرایہ سروس اور شہر کے مطابق مختلف ہوتا ہے۔ جس بس یا میٹرو میں جانا ہے اس کا کرایہ لکھیں۔',
     'trip_save': 'ریٹ محفوظ کریں',
-    'trip_missing_rickshaw_rate': 'کرایہ دیکھنے کے لیے رکشہ کا فی کلومیٹر ریٹ لکھیں۔',
-    'trip_missing_bus_fare': 'خرچ دیکھنے کے لیے بس کا کرایہ لکھیں۔',
-    'trip_estimate_note': 'یہ اندازہ ہے۔ فاصلہ آپ کی موجودہ لوکیشن سے دفتر تک سڑک کے راستے کا ہے۔',
-    'trip_no_verified_office': 'آپ کے شہر کے لیے دفتر کا تصدیق شدہ پتہ ابھی نہیں ہے، اس لیے فاصلہ ناپا نہیں جا سکتا۔',
+    'trip_estimate_note': 'یہ سفر کے خرچ کا اندازہ ہے۔ یہ ایندھن کی قیمت، راستے، ٹریفک اور اصل کرائے کے مطابق بدل سکتا ہے۔',
+    'trip_distance_label': 'دفتر تک فاصلہ',
+    'trip_use_location': 'میری لوکیشن استعمال کریں',
+    'trip_enter_distance': 'کلومیٹر میں فاصلہ لکھیں، خرچ خود بخود نظر آ جائے گا۔',
     'trip_office_not_found': 'یہ دفتر نقشے پر نہیں ملا۔',
     'trip_route_failed': 'سڑک کا راستہ معلوم نہیں ہو سکا۔',
+    'trip_no_route': 'آپ اور اس دفتر کے درمیان سڑک کا راستہ نہیں ملا۔',
+    'trip_timeout': 'درخواست میں بہت وقت لگ گیا۔ انٹرنیٹ چیک کر کے دوبارہ کوشش کریں۔',
+    'trip_vehicle': 'سواری',
+    'trip_rickshaw_base': 'رکشہ کا بنیادی کرایہ (روپے)',
     'trip_location_off': 'براہ کرم اپنے موبائل کی لوکیشن سروس آن کریں۔',
     'trip_location_denied': 'فاصلہ ناپنے کے لیے لوکیشن کی اجازت ضروری ہے۔',
     'trip_location_denied_forever': 'لوکیشن کی اجازت بند ہے۔ ایپ کی سیٹنگز سے اجازت دیں۔',
     'trip_location_unknown': 'آپ کی موجودہ لوکیشن نہیں مل سکی۔',
     'trip_network_error': 'براہ کرم انٹرنیٹ چیک کر کے دوبارہ کوشش کریں۔',
     'open_settings': 'سیٹنگز کھولیں',
-    'source_label': 'ماخذ',
-    'steps': 'مراحل',
-    'currency_rs': 'روپے',
   };
 }

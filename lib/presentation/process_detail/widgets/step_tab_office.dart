@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/icon_badge.dart';
 import '../../../data/models/process_step_model.dart';
 import '../../../providers/profile_provider.dart';
 import 'trip_cost_card.dart';
@@ -15,60 +16,52 @@ class OfficeTab extends StatelessWidget {
 
   final OfficeInfo office;
 
-  Future<void> _openDirections(BuildContext context, String? verifiedAddress) async {
-    final t = AppStrings.of(context);
-    if (verifiedAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(t('trip_no_verified_office'))),
-      );
-      return;
+  Future<void> _openDirections(BuildContext context, String city) async {
+    final t = AppStrings.read(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final destination = office.routingAddressFor(city) ??
+        (city.isEmpty ? office.department : '${office.department}, $city, Pakistan');
+    final uri = Uri.https('www.google.com', '/maps/dir/', {'api': '1', 'destination': destination});
+    try {
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok) messenger.showSnackBar(SnackBar(content: Text(t('trip_network_error'))));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t('trip_network_error'))));
     }
-    final uri = Uri.https('www.google.com', '/maps/dir/', {
-      'api': '1',
-      'destination': verifiedAddress,
-    });
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AppStrings.of(context);
     final city = context.watch<ProfileProvider>().profile.city;
-    final address = office.addressFor(city);
     final isVerified = office.hasVerifiedAddressFor(city);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       children: [
         AppCard(
+          accentColor: AppColors.accent,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: AppColors.accentMuted,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.location_city_rounded, color: AppColors.accent),
-                  ),
+                  IconBadge(icon: Icons.location_city_rounded, size: 44),
                   const SizedBox(width: 12),
                   Expanded(child: Text(office.department, style: AppTextStyles.title)),
                 ],
               ),
               const SizedBox(height: 16),
-              _InfoRow(icon: Icons.place_outlined, label: t('address'), value: address),
+              _InfoRow(icon: Icons.place_rounded, label: t('address'), value: office.addressFor(city)),
               const SizedBox(height: 12),
-              _InfoRow(icon: Icons.schedule_outlined, label: t('timings'), value: office.timings),
+              _InfoRow(icon: Icons.schedule_rounded, label: t('timings'), value: office.timings),
             ],
           ),
         ),
         if (!isVerified) ...[
           const SizedBox(height: 12),
           AppCard(
+            accentColor: AppColors.warning,
             child: Row(
               children: [
                 const Icon(Icons.info_outline_rounded, color: AppColors.warning),
@@ -91,8 +84,7 @@ class OfficeTab extends StatelessWidget {
         AppButton(
           label: t('get_directions'),
           icon: Icons.directions_rounded,
-          variant: AppButtonVariant.secondary,
-          onPressed: () => _openDirections(context, office.routingAddressFor(city)),
+          onPressed: () => _openDirections(context, city),
         ),
       ],
     );
@@ -111,13 +103,13 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: AppColors.inkFaint),
+        Icon(icon, size: 18, color: AppColors.accent),
         const SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: AppTextStyles.caption),
+              Text(label.toUpperCase(), style: AppTextStyles.overline),
               const SizedBox(height: 2),
               Text(value, style: AppTextStyles.body),
             ],

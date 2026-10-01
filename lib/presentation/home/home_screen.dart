@@ -96,6 +96,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView(
       padding: EdgeInsets.fromLTRB(padding, 16, padding, 32),
       children: [
+        if (!isSearching) ...[
+          _HeroBanner(title: t('app_name'), tagline: t('app_tagline')),
+          const SizedBox(height: 16),
+        ],
         TextField(
           controller: _searchController,
           onChanged: (value) {
@@ -105,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
           textInputAction: TextInputAction.search,
           decoration: InputDecoration(
             hintText: t('search_hint'),
-            prefixIcon: const Icon(Icons.search_rounded, color: AppColors.inkFaint),
+            prefixIcon: Icon(Icons.search_rounded, color: AppColors.inkFaint),
             suffixIcon: isSearching
                 ? IconButton(
                     icon: const Icon(Icons.close_rounded),
@@ -121,6 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 16),
         if (profileEmpty && !isSearching) ...[
           AppCard(
+            accentColor: AppColors.highlight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -188,13 +193,87 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: ProcessTile(
                     process: p,
-                    showIcon: false,
                     onTap: () => _openProcess(p.id),
                   ),
                 ),
               ),
         ],
       ],
+    );
+  }
+}
+
+class _HeroBanner extends StatelessWidget {
+  const _HeroBanner({required this.title, required this.tagline});
+
+  final String title;
+  final String tagline;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: AppColors.heroGradient,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: const [
+          BoxShadow(color: Color(0x330B6E4F), blurRadius: 20, offset: Offset(0, 8)),
+        ],
+      ),
+      child: Stack(
+        children: [
+          PositionedDirectional(
+            end: -18,
+            bottom: -26,
+            child: Icon(
+              Icons.explore_rounded,
+              size: 120,
+              color: Colors.white.withValues(alpha: 0.10),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.highlight,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.verified_rounded, size: 14, color: AppColors.onHighlight),
+                    SizedBox(width: 4),
+                    Text(
+                      'VERIFIED GUIDES',
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1,
+                        color: AppColors.onHighlight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: AppTextStyles.displayLarge.copyWith(color: Colors.white),
+              ),
+              const SizedBox(height: 6),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 60),
+                child: Text(
+                  tagline,
+                  style: AppTextStyles.body.copyWith(color: Colors.white.withValues(alpha: 0.85)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

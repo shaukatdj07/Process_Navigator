@@ -4,6 +4,7 @@ import '../../../core/localization/content_text.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/icon_badge.dart';
 import '../../../data/models/category_model.dart';
 
 class CategoryCard extends StatelessWidget {
@@ -18,19 +19,12 @@ class CategoryCard extends StatelessWidget {
 
     return AppCard(
       onTap: onTap,
+      accentColor: AppColors.toneOf(category.id),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: AppColors.accentMuted,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(category.icon, color: AppColors.accent, size: 22),
-          ),
+          IconBadge(icon: category.icon, color: AppColors.toneOf(category.id), size: 44),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -41,7 +35,13 @@ class CategoryCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 2),
-              Text('${category.processCount} ${t('guides_count')}', style: AppTextStyles.caption),
+              Text(
+                '${category.processCount} ${t('guides_count')}',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.toneOf(category.id),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
           ),
         ],

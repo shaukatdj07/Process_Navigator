@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/locale_provider.dart';
+import 'providers/theme_provider.dart';
 import 'presentation/splash/splash_screen.dart';
 
 class ProcessNavigatorApp extends StatelessWidget {
@@ -12,11 +13,14 @@ class ProcessNavigatorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = context.watch<LocaleProvider>();
+    final themeMode = context.watch<ThemeProvider>().mode;
 
     return MaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: themeMode,
       locale: locale.locale,
       supportedLocales: const [Locale('en'), Locale('ur')],
       localizationsDelegates: const [

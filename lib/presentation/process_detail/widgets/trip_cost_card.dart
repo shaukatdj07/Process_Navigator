@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/localization/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/utils/money.dart';
-import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/icon_badge.dart';
 import '../../../data/models/process_step_model.dart';
 import '../../../domain/trip_cost_calculator.dart';
 import '../../../providers/profile_provider.dart';
 import '../../../providers/trip_provider.dart';
 import 'trip_rates_sheet.dart';
 
-class TripCostCard extends StatelessWidget {
+class TripCostCard extends StatefulWidget {
   const TripCostCard({super.key, required this.office});
 
   final OfficeInfo office;
+
+  @override
+  State<TripCostCard> createState() => _TripCostCardState();
+}
+
+class _TripCostCardState extends State<TripCostCard> {
+  static const double _maxKm = 3000;
 
   static const Map<TransportMode, IconData> _icons = {
     TransportMode.bike: Icons.two_wheeler_rounded,
@@ -23,6 +31,20 @@ class TripCostCard extends StatelessWidget {
     TransportMode.rickshaw: Icons.electric_rickshaw_rounded,
     TransportMode.bus: Icons.directions_bus_rounded,
   };
+
+  final TextEditingController _distance = TextEditingController();
+
+  @override
+  void dispose() {
+    _distance.dispose();
+    super.dispose();
+  }
+
+  double? get _km {
+    final value = double.tryParse(_distance.text.trim().replaceAll(',', '.'));
+    if (value == null || value <= 0 || value > _maxKm) return null;
+    return value;
+  }
 
   String _modeLabel(AppStrings t, TransportMode mode) {
     return switch (mode) {
@@ -33,19 +55,37 @@ class TripCostCard extends StatelessWidget {
     };
   }
 
+  Future<void> _useMyLocation(String address) async {
+    final km = await context.read<TripProvider>().distanceFromMyLocation(address);
+    if (!mounted || km == null) return;
+    setState(() => _distance.text = km.toStringAsFixed(1));
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppStrings.of(context);
     final trip = context.watch<TripProvider>();
     final city = context.watch<ProfileProvider>().profile.city;
-    final isLoading = trip.status == TripStatus.loading;
+    final verifiedAddress = widget.office.routingAddressFor(city);
+    final isLoading = trip.locationStatus == LocationStatus.loading;
+    final km = _km;
+    final cost = km == null
+        ? null
+        : TripCostCalculator.calculate(mode: trip.mode, distanceKm: km, settings: trip.settings);
 
     return AppCard(
+      accentColor: AppColors.highlight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t('trip_title'), style: AppTextStyles.title),
-          const SizedBox(height: 12),
+          Row(
+            children: [
+              IconBadge(icon: Icons.route_rounded, color: AppColors.highlight, size: 40),
+              const SizedBox(width: 12),
+              Expanded(child: Text(t('trip_title'), style: AppTextStyles.title)),
+            ],
+          ),
+          const SizedBox(height: 14),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -60,8 +100,10 @@ class TripCostCard extends StatelessWidget {
                   label: Text(_modeLabel(t, mode)),
                   selected: trip.mode == mode,
                   selectedColor: AppColors.accent,
+                  backgroundColor: AppColors.surface,
                   labelStyle: AppTextStyles.body.copyWith(
                     color: trip.mode == mode ? AppColors.surface : AppColors.ink,
+                    fontWeight: FontWeight.w600,
                   ),
                   showCheckmark: false,
                   onSelected: (_) => context.read<TripProvider>().selectMode(mode),
@@ -69,20 +111,41 @@ class TripCostCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          AppButton(
-            label: isLoading ? t('trip_calculating') : t('trip_calculate'),
-            icon: Icons.route_rounded,
-            isLoading: isLoading,
-            onPressed: () => context.read<TripProvider>().calculate(office: office, userCity: city),
+          TextField(
+            controller: _distance,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+            onChanged: (_) {
+              context.read<TripProvider>().clearError();
+              setState(() {});
+            },
+            decoration: InputDecoration(
+              labelText: t('trip_distance_label'),
+              suffixText: 'km',
+              prefixIcon: const Icon(Icons.straighten_rounded),
+            ),
           ),
-          if (trip.status == TripStatus.error && trip.errorKey != null) ...[
-            const SizedBox(height: 12),
+          if (verifiedAddress != null) ...[
+            const SizedBox(height: 8),
+            TextButton.icon(
+              icon: isLoading
+                  ? SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.accent),
+                    )
+                  : const Icon(Icons.my_location_rounded, size: 18),
+              label: Text(isLoading ? t('trip_calculating') : t('trip_use_location')),
+              onPressed: isLoading ? null : () => _useMyLocation(verifiedAddress),
+            ),
+          ],
+          if (trip.locationStatus == LocationStatus.error && trip.errorKey != null)
             _ErrorBlock(errorKey: trip.errorKey!),
-          ],
-          if (trip.status == TripStatus.ready && trip.result != null) ...[
-            const SizedBox(height: 14),
-            _ResultBlock(result: trip.result!, mode: trip.mode),
-          ],
+          const SizedBox(height: 14),
+          if (cost == null)
+            Text(t('trip_enter_distance'), style: AppTextStyles.bodyMuted)
+          else
+            _ResultBlock(cost: cost, km: km!, modeLabel: _modeLabel(t, trip.mode)),
           const SizedBox(height: 4),
           TextButton(
             onPressed: () => TripRatesSheet.show(context),
@@ -126,62 +189,80 @@ class _ErrorBlock extends StatelessWidget {
 }
 
 class _ResultBlock extends StatelessWidget {
-  const _ResultBlock({required this.result, required this.mode});
+  const _ResultBlock({required this.cost, required this.km, required this.modeLabel});
 
-  final TripCost result;
-  final TransportMode mode;
+  final TripCost cost;
+  final double km;
+  final String modeLabel;
 
   @override
   Widget build(BuildContext context) {
     final t = AppStrings.of(context);
 
-    final missing = result.missingInput;
-    final missingMessage = missing == TripCostCalculator.missingRickshawRate
-        ? t('trip_missing_rickshaw_rate')
-        : missing == TripCostCalculator.missingBusFare
-            ? t('trip_missing_bus_fare')
-            : null;
-
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.accentMuted,
-        borderRadius: BorderRadius.circular(12),
+        gradient: AppColors.heroGradient,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _line(t('trip_distance'), Money.km(result.distanceKm)),
-          if (result.litresOneWay != null)
-            _line(t('trip_fuel_used'), '${result.litresOneWay!.toStringAsFixed(2)} ${t('trip_litres')}'),
-          if (missingMessage != null) ...[
-            const SizedBox(height: 6),
-            Text(missingMessage, style: AppTextStyles.bodyMuted),
-          ] else ...[
-            _line(t('trip_one_way'), Money.rs(result.oneWay!), bold: true),
-            _line(t('trip_round'), Money.rs(result.roundTrip!), bold: true),
+          _line(Icons.commute_rounded, '${t('trip_vehicle')}: $modeLabel', bold: true),
+          const SizedBox(height: 4),
+          _line(Icons.straighten_rounded, '${t('trip_distance')}: ${Money.km(km)}'),
+          if (cost.litres != null) ...[
+            const SizedBox(height: 4),
+            _line(
+              Icons.local_gas_station_rounded,
+              '${t('trip_fuel_used')}: ${cost.litres!.toStringAsFixed(2)} ${t('trip_litres')}',
+            ),
           ],
-          const SizedBox(height: 8),
-          Text(t('trip_estimate_note'), style: AppTextStyles.caption),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(child: _figure(t('trip_one_way'), Money.rs(cost.oneWay))),
+              Container(width: 1, height: 44, color: Colors.white24),
+              const SizedBox(width: 16),
+              Expanded(child: _figure(t('trip_round'), Money.rs(cost.roundTrip))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            t('trip_estimate_note'),
+            style: AppTextStyles.caption.copyWith(color: Colors.white70),
+          ),
         ],
       ),
     );
   }
 
-  Widget _line(String label, String value, {bool bold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(child: Text(label, style: AppTextStyles.body)),
-          const SizedBox(width: 12),
-          Text(
-            value,
-            style: bold ? AppTextStyles.title.copyWith(color: AppColors.accent) : AppTextStyles.body,
+  Widget _line(IconData icon, String text, {bool bold = false}) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.highlight, size: 18),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            text,
+            style: AppTextStyles.body.copyWith(
+              color: Colors.white,
+              fontWeight: bold ? FontWeight.w700 : FontWeight.w400,
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _figure(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label.toUpperCase(), style: AppTextStyles.overline.copyWith(color: Colors.white70)),
+        const SizedBox(height: 4),
+        Text(value, style: AppTextStyles.figure.copyWith(color: AppColors.highlight)),
+      ],
     );
   }
 }

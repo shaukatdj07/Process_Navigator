@@ -12,7 +12,7 @@ class LoadingIndicator extends StatelessWidget {
       child: SizedBox(
         height: size,
         width: size,
-        child: const CircularProgressIndicator(
+        child: CircularProgressIndicator(
           strokeWidth: 2.6,
           valueColor: AlwaysStoppedAnimation<Color>(AppColors.accent),
         ),

@@ -1,7 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../core/constants/app_constants.dart';
 
-
 abstract class ChecklistRepository {
   Future<Set<String>> getCheckedItems(String processId);
   Future<void> setChecked(String processId, String itemId, bool checked);

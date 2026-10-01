@@ -2,9 +2,6 @@ import '../models/document_item_model.dart';
 import '../models/process_model.dart';
 import '../models/process_step_model.dart';
 
-// NOCs aur licenses. Arms license ki fee Dawn ki khabar aur NADRA ki fee
-// guide se hai. Construction NOC ki fee plot ke hisab se lagti hai isliye
-// number nahi diya.
 final List<ProcessModel> licenceProcesses = [
   ProcessModel(
     id: 'arms_license_npb',

@@ -78,7 +78,9 @@ class _ProcessDetailScreenState extends State<ProcessDetailScreen> {
             isScrollable: true,
             labelColor: AppColors.accent,
             unselectedLabelColor: AppColors.inkMuted,
-            indicatorColor: AppColors.accent,
+            indicatorColor: AppColors.highlight,
+            indicatorWeight: 4,
+            indicatorSize: TabBarIndicatorSize.label,
             labelStyle: AppTextStyles.title,
             tabs: [
               Tab(text: t('tab_documents')),

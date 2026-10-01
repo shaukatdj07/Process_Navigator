@@ -1,4 +1,3 @@
-
 class ContentTranslations {
   const ContentTranslations._();
 

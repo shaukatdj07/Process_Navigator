@@ -6,8 +6,6 @@ import '../../../core/widgets/app_button.dart';
 import '../../../data/models/trip_settings_model.dart';
 import '../../../providers/trip_provider.dart';
 
-// Yahan user petrol ki qeemat, average aur rickshaw ya bus ka kiraya
-// khud likhta hai, kyunke yeh cheezein rozana ya shehar ke hisab se badalti hain.
 class TripRatesSheet extends StatefulWidget {
   const TripRatesSheet({super.key});
 
@@ -27,6 +25,7 @@ class _TripRatesSheetState extends State<TripRatesSheet> {
   late final TextEditingController _petrol;
   late final TextEditingController _bike;
   late final TextEditingController _car;
+  late final TextEditingController _rickshawBase;
   late final TextEditingController _rickshaw;
   late final TextEditingController _bus;
 
@@ -37,8 +36,9 @@ class _TripRatesSheetState extends State<TripRatesSheet> {
     _petrol = TextEditingController(text: _show(s.petrolPrice));
     _bike = TextEditingController(text: _show(s.bikeKmPerLitre));
     _car = TextEditingController(text: _show(s.carKmPerLitre));
-    _rickshaw = TextEditingController(text: s.rickshawRatePerKm == null ? '' : _show(s.rickshawRatePerKm!));
-    _bus = TextEditingController(text: s.busFare == null ? '' : _show(s.busFare!));
+    _rickshawBase = TextEditingController(text: _show(s.rickshawBaseFare));
+    _rickshaw = TextEditingController(text: _show(s.rickshawRatePerKm));
+    _bus = TextEditingController(text: _show(s.busFare));
   }
 
   String _show(double value) {
@@ -59,8 +59,9 @@ class _TripRatesSheetState extends State<TripRatesSheet> {
       petrolPrice: _read(_petrol) ?? current.petrolPrice,
       bikeKmPerLitre: _read(_bike) ?? current.bikeKmPerLitre,
       carKmPerLitre: _read(_car) ?? current.carKmPerLitre,
-      rickshawRatePerKm: _read(_rickshaw),
-      busFare: _read(_bus),
+      rickshawBaseFare: _read(_rickshawBase) ?? current.rickshawBaseFare,
+      rickshawRatePerKm: _read(_rickshaw) ?? current.rickshawRatePerKm,
+      busFare: _read(_bus) ?? current.busFare,
     );
     await provider.saveSettings(updated);
     if (mounted) Navigator.of(context).pop();
@@ -71,6 +72,7 @@ class _TripRatesSheetState extends State<TripRatesSheet> {
     _petrol.dispose();
     _bike.dispose();
     _car.dispose();
+    _rickshawBase.dispose();
     _rickshaw.dispose();
     _bus.dispose();
     super.dispose();
@@ -97,6 +99,7 @@ class _TripRatesSheetState extends State<TripRatesSheet> {
             _field(t('trip_petrol_price'), _petrol, note: t('trip_petrol_note')),
             _field(t('trip_bike_mileage'), _bike),
             _field(t('trip_car_mileage'), _car, note: t('trip_mileage_note')),
+            _field(t('trip_rickshaw_base'), _rickshawBase),
             _field(t('trip_rickshaw_rate'), _rickshaw, note: t('trip_rickshaw_note')),
             _field(t('trip_bus_fare'), _bus, note: t('trip_bus_note')),
             const SizedBox(height: 8),

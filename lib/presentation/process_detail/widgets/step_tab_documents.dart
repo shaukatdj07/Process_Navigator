@@ -45,7 +45,7 @@ class DocumentsTab extends StatelessWidget {
                   value: progress,
                   minHeight: 8,
                   backgroundColor: AppColors.surfaceMuted,
-                  valueColor: const AlwaysStoppedAnimation(AppColors.accent),
+                  valueColor: AlwaysStoppedAnimation(AppColors.accent),
                 ),
               ),
             ],

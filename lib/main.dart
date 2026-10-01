@@ -14,6 +14,7 @@ import 'data/services/routing_service.dart';
 import 'providers/checklist_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/process_provider.dart';
+import 'providers/theme_provider.dart';
 import 'providers/profile_provider.dart';
 import 'providers/trip_provider.dart';
 
@@ -21,7 +22,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
-
 
   final encryptionKey = await _loadOrCreateKey();
 
@@ -34,6 +34,7 @@ Future<void> main() async {
     Hive.openBox(AppConstants.settingsBox),
   ]);
 
+  final themeProvider = ThemeProvider()..load();
 
   final processRepository = LocalProcessRepository();
   final profileRepository = HiveProfileRepository();
@@ -60,6 +61,7 @@ Future<void> main() async {
           create: (_) => ChecklistProvider(repository: checklistRepository),
         ),
         ChangeNotifierProvider(create: (_) => LocaleProvider()..load()),
+        ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
         ChangeNotifierProvider(
           create: (_) => TripProvider(
             settingsRepository: tripSettingsRepository,

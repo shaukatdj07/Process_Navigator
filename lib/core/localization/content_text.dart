@@ -5,7 +5,6 @@ import '../../data/models/category_model.dart';
 import '../../data/models/process_model.dart';
 import '../../providers/locale_provider.dart';
 
-
 class ContentText {
   const ContentText._();
 

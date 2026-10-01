@@ -25,7 +25,7 @@ class SubmitTab extends StatelessWidget {
                     height: 26,
                     width: 26,
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.accentMuted,
                       shape: BoxShape.circle,
                     ),

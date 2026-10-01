@@ -8,8 +8,8 @@ class AppConstants {
   static const String checklistBox = 'checklist_box';
   static const String settingsBox = 'settings_box';
 
-  // Hive keys
   static const String profileKey = 'user_profile';
   static const String localeKey = 'app_locale';
   static const String tripSettingsKey = 'trip_settings';
+  static const String themeModeKey = 'theme_mode';
 }
