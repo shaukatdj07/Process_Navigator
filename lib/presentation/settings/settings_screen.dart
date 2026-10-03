@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/localization/app_strings.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/responsive.dart';
 import '../../core/widgets/app_card.dart';
-import '../../core/widgets/icon_badge.dart';
 import '../../core/widgets/choice_selector.dart';
 import '../../core/widgets/settings_section.dart';
 import '../../providers/locale_provider.dart';
@@ -56,24 +56,45 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          AppCard(
-            child: Row(
-              children: [
-                IconBadge(icon: Icons.explore_rounded, size: 48),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(t('app_name'), style: AppTextStyles.title),
-                      const SizedBox(height: 2),
-                      Text('${t('version')} 1.0.0', style: AppTextStyles.caption),
-                    ],
+      AppCard(
+        child: Row(
+          children: [
+            Container(
+              height: 48,
+              width: 48,
+              decoration: BoxDecoration(
+                color: AppColors.accentPressed,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: OverflowBox(
+                  maxWidth: 96,
+                  maxHeight: 96,
+                  child: Image.asset(
+                    'assets/icon/app_icon_foreground_1024.png',
+                    width: 96,
+                    height: 96,
+                    cacheWidth: 192,
+                    excludeFromSemantics: true,
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t('app_name'), style: AppTextStyles.title),
+                  const SizedBox(height: 2),
+                  Text('${t('version')} 1.0.0', style: AppTextStyles.caption),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
         ],
       ),
     );

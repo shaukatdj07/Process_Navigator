@@ -223,12 +223,28 @@ class _HeroBanner extends StatelessWidget {
       child: Stack(
         children: [
           PositionedDirectional(
-            end: -18,
-            bottom: -26,
-            child: Icon(
-              Icons.explore_rounded,
-              size: 120,
-              color: Colors.white.withValues(alpha: 0.10),
+            end: 0,
+            bottom: 0,
+            child: Container(
+              height: 52,
+              width: 52,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.accentPressed,
+              ),
+              child: ClipOval(
+                child: OverflowBox(
+                  maxWidth: 100,
+                  maxHeight: 100,
+                  child: Image.asset(
+                    'assets/icon/app_icon_foreground_1024.png',
+                    width: 100,
+                    height: 100,
+                    cacheWidth: 200,
+                    excludeFromSemantics: true,
+                  ),
+                ),
+              ),
             ),
           ),
           Column(
@@ -240,7 +256,7 @@ class _HeroBanner extends StatelessWidget {
                   color: AppColors.highlight,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.verified_rounded, size: 14, color: AppColors.onHighlight),
