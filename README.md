@@ -197,7 +197,7 @@ Found wrong or outdated information? Use the **Report** button inside a guide, o
 ## Author
 
 **Shaukat Ullah**, Flutter developer
-GitHub: [@shaukatdj07/](https://github.com/shaukatintechvia)
+GitHub: [@shaukatdj07/](https://github.com/shaukatdj07)
 
 ---
 
